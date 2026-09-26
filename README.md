@@ -13,7 +13,7 @@ Students who are fairly confident coders but haven't used ROS2 before are encour
 
 ## Basic ROS2 Commands
 
-ROS2 documentation can be found [here](https://docs.ros.org/en/jazzy/index.html).
+ROS2 documentation can be found [here](https://docs.ros.org/en/jazzy/Tutorials/Beginner-Client-Libraries/Writing-A-Simple-Cpp-Publisher-And-Subscriber.html).
 
 ### Build projects
 - Make sure you're at the top of the project directory
