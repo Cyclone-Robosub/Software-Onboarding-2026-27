@@ -10,6 +10,11 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
 
+# Include directories
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include
+)
+
 # add executables
 add_executable(publisher src/publisher.cpp)
 ament_target_dependencies(publisher rclcpp std_msgs)
