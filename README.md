@@ -33,7 +33,7 @@ ROS2 documentation can be found [here](https://docs.ros.org/en/jazzy/index.html)
 
 ## READMEs
 
-Teams should add to the README files provided in their sub-projects, following the template below:
+Teams should add to the README files provided in their sub-projects, following the template below. This includes more information than you will be using (including services and actions), so just include what's relevant to your project.
 
 ---
 
