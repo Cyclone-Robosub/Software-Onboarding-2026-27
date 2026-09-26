@@ -1,10 +1,5 @@
 #include <chrono>
-#include <functional>
-#include <memory>
-#include <string>
 
-#include "rclcpp/rclcpp.hpp"
-#include "std_msgs/msg/string.hpp"
 #include "publisher.hpp"
 
 using namespace std::chrono_literals;
