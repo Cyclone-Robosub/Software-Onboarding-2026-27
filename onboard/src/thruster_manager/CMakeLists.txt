@@ -7,9 +7,24 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+# Include directories
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include
+)
+
+# add executables
+add_executable(thruster_manager src/thruster_manager.cpp)
+ament_target_dependencies(thruster_manager rclcpp std_msgs)
+
+install(TARGETS
+  thruster_manager
+  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)

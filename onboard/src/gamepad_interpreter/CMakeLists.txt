@@ -7,9 +7,24 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(std_msgs REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
+
+# Include directories
+include_directories(
+  ${PROJECT_SOURCE_DIR}/include
+)
+
+# add executables
+add_executable(gamepad_interpreter src/gamepad_interpreter.cpp)
+ament_target_dependencies(gamepad_interpreter rclcpp std_msgs)
+
+install(TARGETS
+  gamepad_interpreter
+  DESTINATION lib/${PROJECT_NAME})
 
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
