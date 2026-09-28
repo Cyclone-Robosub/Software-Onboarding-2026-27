@@ -19,9 +19,13 @@ void MinimalPublisher::timer_callback() {
     publisher->publish(message);
 }
 
+#ifndef ENABLE_TESTING
+
 int main(int argc, char * argv[]) {
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<MinimalPublisher>());
     rclcpp::shutdown();
     return 0;
 }
+
+#endif // ENABLE_TESTING

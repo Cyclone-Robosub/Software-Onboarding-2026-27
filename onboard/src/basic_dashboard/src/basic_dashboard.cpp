@@ -5,9 +5,13 @@ BasicDashboard::BasicDashboard() :
 
 }
 
+#ifndef ENABLE_TESTING
+
 int main(int argc, char * argv[]) {
     rclcpp::init(argc, argv);
     rclcpp::spin(std::make_shared<BasicDashboard>());
     rclcpp::shutdown();
     return 0;
 }
+
+#endif // ENABLE_TESTING
