@@ -1,5 +1,6 @@
+/* gtest, i.e. GoogleTest, is what we use for our C++ testing infrastructure */
 #include <gtest/gtest.h>
-#include <rclcpp/rclcpp.hpp>
+#include "rclcpp/rclcpp.hpp"
 #include "rcl_interfaces/msg/log.hpp"
 
 #include <chrono>
@@ -7,7 +8,7 @@
 #include "subcriber.hpp"
 #include "publisher.hpp"
 
-class TestSubscriber : public ::testing::Test {
+class TestSubscriber : public testing::Test {
 protected:
     std::shared_ptr<MinimalSubscriber> node;
     rclcpp::Publisher<std_msgs::msg::String>::SharedPtr publisher;
@@ -50,7 +51,7 @@ protected:
     }
 };
 
-class TestPublisher : public ::testing::Test {
+class TestPublisher : public testing::Test {
 protected:
     std::shared_ptr<MinimalPublisher> node;
     rclcpp::Subscription<std_msgs::msg::String>::SharedPtr subscription;

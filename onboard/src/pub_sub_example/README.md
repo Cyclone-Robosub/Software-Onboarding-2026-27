@@ -18,4 +18,4 @@ None
 None
 
 ## Notes (Optional)
-None
+These files are *heavily* documented, explaining what each function/line does in great detail. This level of documentation is not expected of your code: it is included so that you can more easily use these files as a reference and learn how it works.
