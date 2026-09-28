@@ -2,7 +2,6 @@
 #include <rclcpp/rclcpp.hpp>
 #include "rcl_interfaces/msg/log.hpp"
 
-#include <unistd.h>
 #include <chrono>
 
 #include "subcriber.hpp"
