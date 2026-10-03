@@ -31,6 +31,15 @@ ROS2 documentation can be found [here](https://docs.ros.org/en/jazzy/Tutorials/B
 - Run `$ colcon test` to test all projects
 - Or run `$ colcon test --packages-select <package_name>` if you want to test just your package
 
+## Heartbeats
+Each node except the dashboard should publish a heartbeat to a topic specified in the documentation for each project. Heartbeats are used for safety and status monitoring. They work as follows:
+- Each node must publish a heartbeat, and monitor the heartbeat of any nodes directly upstream of themselves
+- Each node must check at least once per second (recommended to check every 0.5 seconds) how long it has been since a heartbeat was received from directly upstream nodes
+- If this duration is longer than 1 second, ignore all input and send output that will stop the thrusters (i.e. 1500 PWM, a 0 power percentage, etc.)
+- If the heartbeat recovers, resume operation as normal
+
+This ensures that if any node stops responding, the robot is brought safely to a stop.
+
 ## READMEs
 
 Teams should add to the README files provided in their sub-projects, following the template below. This includes more information than you will be using (including services and actions), so just include what's relevant to your project.
