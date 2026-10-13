@@ -1,0 +1,8 @@
+float64 thruster_percent_0
+float64 thruster_percent_1
+float64 thruster_percent_2
+float64 thruster_percent_3
+float64 thruster_percent_4
+float64 thruster_percent_5
+float64 thruster_percent_6
+float64 thruster_percent_7
