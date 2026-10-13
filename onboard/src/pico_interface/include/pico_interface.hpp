@@ -6,16 +6,12 @@
 
 class PicoInterface : public rclcpp::Node {
   public:
-    PicoInterface();
+    PicoInterface(std::string path);
     ~PicoInterface();
 
   private:
-    void thruster_pwm_callback(const std_msgs::msg::Empty& pwm);
-    void thruster_heartbeat_callback(const std_msgs::msg::Empty& heartbeat);
-    void heartbeat_timer_callback();
-    void configure_serial_port();
-    void send_heartbeat_to_pico();
-    void send_pwm_to_pico();
+    std::string path = path;
+    int serial_fd = -1;
 
     rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr thruster_heartbeat_subscription;
     rclcpp::Subscription<std_msgs::msg::Empty>::SharedPtr thruster_pwm_subscription;
@@ -23,7 +19,13 @@ class PicoInterface : public rclcpp::Node {
 
     std::chrono::time_point<std::chrono::steady_clock> most_recent_heartbeat;
 
-    int serial_fd = -1;
+    void thruster_pwm_callback(const std_msgs::msg::Empty& pwm);
+    void thruster_heartbeat_callback(const std_msgs::msg::Empty& heartbeat);
+    void heartbeat_timer_callback();
+    void configure_serial_port();
+    void send_heartbeat_to_pico();
+    void send_pwm_to_pico();
+    bool get_health_status();
 };
 
 #endif // PICO_INTERFACE_HPP
