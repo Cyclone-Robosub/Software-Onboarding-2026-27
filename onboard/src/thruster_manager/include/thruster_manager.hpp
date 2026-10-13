@@ -4,17 +4,17 @@
 #include "rclcpp/rclcpp.hpp"
 
 #include "custom_interfaces/msg/pwm.hpp"
-#include "custom_interfaces/msg/thruster_values.hpp"
+#include "custom_interfaces/msg/thruster_percents.hpp"
 
 class ThrusterManager : public rclcpp::Node {
 public:
     ThrusterManager();
 
 private:
-    void thruster_manager_callback(const custom_interfaces::msg::ThrusterValues & msg) const;
-    rclcpp::Subscription<custom_interfaces::msg::ThrusterValues>::SharedPtr subscription;
+    void thruster_manager_callback(const custom_interfaces::msg::ThrusterPercents & msg) const;
+    rclcpp::Subscription<custom_interfaces::msg::ThrusterPercents>::SharedPtr subscription;
 
-    custom_interfaces::msg::PWM convert_value_to_pwm(const custom_interfaces::msg::ThrusterValues & msg) const;
+    custom_interfaces::msg::PWM convert_percents_to_pwm(const custom_interfaces::msg::ThrusterPercents & msg) const;
 
     void set_pwm_limit(int limit);
     int pwmLimit = 200;

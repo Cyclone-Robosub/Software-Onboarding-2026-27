@@ -15,7 +15,7 @@ To configure the thruster PWM limit, publish a single number to the thruster_per
 
 ## What topics/services/actions does the package use for output? **{TODO add more outputs as needed}**
 - Topics:
-    - `topic_name` **{TODO agree on a topic name with the pico_interface team}**: PWM values for each thruster
+    - `pwm` : PWM values for each thruster
     - `thruster_manager_heartbeat`: heartbeat for this package
 
 ## What custom message types or libraries does the package use?

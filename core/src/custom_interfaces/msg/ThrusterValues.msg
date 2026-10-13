@@ -1,8 +1,0 @@
-float64 thruster_value_0
-float64 thruster_value_1
-float64 thruster_value_2
-float64 thruster_value_3
-float64 thruster_value_4
-float64 thruster_value_5
-float64 thruster_value_6
-float64 thruster_value_7
