@@ -14,11 +14,13 @@ private:
     void thruster_manager_callback(const custom_interfaces::msg::ThrusterValues & msg) const;
     rclcpp::Subscription<custom_interfaces::msg::ThrusterValues>::SharedPtr subscription;
 
-    custom_interfaces::msg::ThrusterValues thruster_values;
+    custom_interfaces::msg::PWM convert_value_to_pwm(const custom_interfaces::msg::ThrusterValues & msg) const;
+
+    void set_pwm_limit(int limit);
     int pwmLimit = 200;
 
     void timer_callback();
-    rclcpp::Publisher<custom_interfaces::msg::PWM>::SharedPtr timer_manager;
+    rclcpp::Publisher<custom_interfaces::msg::PWM>::SharedPtr pwm_publisher;
     rclcpp::TimerBase::SharedPtr timer;
     std::chrono::time_point<std::chrono::steady_clock> most_recent_heartbeat;
 };
