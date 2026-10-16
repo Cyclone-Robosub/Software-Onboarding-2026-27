@@ -179,7 +179,7 @@ void PicoInterface::write_to_serial_port(const std::string& message) {
 
 int main(int argc, char* argv[]) {
     rclcpp::init(argc, argv);
-    rclcpp::spin(std::make_shared<PicoInterface>());
+    rclcpp::spin(std::make_shared<PicoInterface>("/dev/ttyACM0"));
     rclcpp::shutdown();
     return 0;
 }

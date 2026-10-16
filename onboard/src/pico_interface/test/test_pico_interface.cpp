@@ -18,7 +18,7 @@ protected:
     }
 
     void create_node() {
-        node = std::make_shared<PicoInterface>();
+        node = std::make_shared<PicoInterface>("/dev/ttyACM0");
     }
 };
 

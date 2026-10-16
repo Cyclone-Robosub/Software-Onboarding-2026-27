@@ -24,6 +24,10 @@ include_directories(
 add_executable(pico_interface src/pico_interface.cpp)
 ament_target_dependencies(pico_interface rclcpp std_msgs custom_interfaces)
 
+target_link_libraries(pico_interface
+  custom_interfaces::custom_interfaces__rosidl_generator_cpp
+)
+
 install(TARGETS
   pico_interface
   DESTINATION lib/${PROJECT_NAME})
@@ -37,6 +41,7 @@ if(BUILD_TESTING)
   ament_target_dependencies(${PROJECT_NAME}_lib
     rclcpp
     std_msgs
+    custom_interfaces
   )
   target_include_directories(${PROJECT_NAME}_lib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
@@ -54,6 +59,11 @@ if(BUILD_TESTING)
   ament_target_dependencies(${PROJECT_NAME}_test
     rclcpp
     std_msgs
+    custom_interfaces
+  )
+
+  target_link_libraries(${PROJECT_NAME}_lib
+    custom_interfaces::custom_interfaces__rosidl_generator_cpp
   )
 endif()
 
