@@ -5,13 +5,17 @@
 #include "std_msgs/msg/empty.hpp"
 #include "custom_interfaces/msg/pwm.hpp"
 
+#include <array>
+#include <chrono>
+#include <string>
+
 class PicoInterface : public rclcpp::Node {
   public:
     PicoInterface(
       std::string path,
       std::array<int, 8> thruster_pins = {2, 0, 6, 4, 19, 26, 21, 27}
     );
-    ~PicoInterface();
+    ~PicoInterface() override;
 
   private:
     std::string path;
@@ -22,15 +26,15 @@ class PicoInterface : public rclcpp::Node {
     rclcpp::Subscription<custom_interfaces::msg::PWM>::SharedPtr thruster_pwm_subscription;
     rclcpp::TimerBase::SharedPtr heartbeat_timer;
 
-    std::chrono::time_point<std::chrono::steady_clock> most_recent_heartbeat;
+    std::chrono::time_point<std::chrono::steady_clock> most_recent_heartbeat{};
+    bool first_heartbeat_received{false};
 
+    bool configure_serial_port();
+    bool is_upstream_healthy();
     void thruster_pwm_callback(const custom_interfaces::msg::PWM& pwm);
-    void thruster_heartbeat_callback(const std_msgs::msg::Empty& heartbeat);
+    void thruster_heartbeat_callback();
     void heartbeat_timer_callback();
-    void configure_serial_port();
-    void send_heartbeat_to_pico();
-    void send_pwm_to_pico(int pin, int value);
-    bool get_health_status();
+    void write_to_serial_port(const std::string& message);
 };
 
 #endif // PICO_INTERFACE_HPP

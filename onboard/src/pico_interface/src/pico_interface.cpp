@@ -20,11 +20,17 @@ PicoInterface::PicoInterface(
     path(std::move(path)),
     thruster_pins(thruster_pins)
 {
-    configure_serial_port();
+    if (!configure_serial_port()) {
+        if (serial_fd >= 0) {
+            close(serial_fd);
+            serial_fd = -1;
+        }
+        throw std::runtime_error("Failed to configure serial port");
+    }
 
     thruster_heartbeat_subscription = this->create_subscription<std_msgs::msg::Empty>(
         "thruster_heartbeat", 10,
-        [this](const std_msgs::msg::Empty& heartbeat) { thruster_heartbeat_callback(heartbeat); });
+        [this](const std_msgs::msg::Empty&) { thruster_heartbeat_callback(); });
 
     thruster_pwm_subscription = this->create_subscription<custom_interfaces::msg::PWM>(
         "thruster_pwm", 10,
@@ -33,48 +39,78 @@ PicoInterface::PicoInterface(
     heartbeat_timer = this->create_wall_timer(500ms, [this]() { heartbeat_timer_callback(); });
 }
 
-void PicoInterface::thruster_heartbeat_callback(const std_msgs::msg::Empty& heartbeat) {
+PicoInterface::~PicoInterface() {
+    if (serial_fd >= 0) {
+        close(serial_fd);
+    }
+}
+
+void PicoInterface::thruster_heartbeat_callback() {
     most_recent_heartbeat = std::chrono::steady_clock::now();
-    (void)heartbeat;
 }
 
 void PicoInterface::thruster_pwm_callback(const custom_interfaces::msg::PWM& pwm) {
+    if (!is_upstream_healthy()) {
+        RCLCPP_WARN(this->get_logger(), "Upstream heartbeat is unhealthy, ignoring PWM command");
+        return;
+    }
+
     const std::array<uint16_t, 8> pwm_values = {
         pwm.thruster_pwm_0, pwm.thruster_pwm_1, pwm.thruster_pwm_2, pwm.thruster_pwm_3,
         pwm.thruster_pwm_4, pwm.thruster_pwm_5, pwm.thruster_pwm_6, pwm.thruster_pwm_7
     };
 
-    for (size_t i = 0; i < pwm_values.size(); ++i) {
-        send_pwm_to_pico(i, pwm_values[i]);
+    std::string serial_message{};
+    for (size_t i = 0; i < thruster_pins.size(); ++i) {
+        serial_message = "Set " + std::to_string(thruster_pins[i]) + " PWM " + std::to_string(pwm_values[i]) + "\n";
+        write_to_serial_port(serial_message);
     }
 }
-
 
 void PicoInterface::heartbeat_timer_callback() {
-    bool healthy = get_health_status();
-    if (healthy) {
-        send_heartbeat_to_pico();
+    std::string serial_message{};
+    if (is_upstream_healthy()) {
+        serial_message = "ping\n";
+        write_to_serial_port(serial_message);
     } else {
-        RCLCPP_WARN(this->get_logger(), "PicoInterface is unhealthy, stopping thrusters");
-        // stop thrusters
+        RCLCPP_WARN(this->get_logger(), "Upstream hearbeat is unhealthy, stopping thrusters");
+        for (size_t i = 0; i < thruster_pins.size(); ++i) {
+            serial_message = "Set " + std::to_string(thruster_pins[i]) + " PWM 1500\n";
+            write_to_serial_port(serial_message);
+        }
     }
 }
 
-void PicoInterface::configure_serial_port() {
+bool PicoInterface::is_upstream_healthy() {
+    if (!first_heartbeat_received) {
+        return false;
+    }
+
+    return (std::chrono::steady_clock::now() - most_recent_heartbeat) <= 1s;
+}
+
+bool PicoInterface::configure_serial_port() {
     int serial_port = open(path.c_str(), O_RDWR | O_NOCTTY | O_NDELAY | O_NONBLOCK);
 
     if (serial_port < 0) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to open serial port: %s", strerror(errno));
-        serial_fd = -1;
-        return;
+        RCLCPP_ERROR(
+            this->get_logger(), 
+            "Failed to open serial port: %s",
+            strerror(errno)
+        );
+        return false;
     }
 
     struct termios tty;
 
     if (tcgetattr(serial_port, &tty) != 0) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to get serial port attributes: %s", strerror(errno));
-        serial_fd = -1;
-        return;
+        RCLCPP_ERROR(
+            this->get_logger(),
+            "Failed to get serial port attributes: %s",
+            strerror(errno)
+        );
+        close(serial_port);
+        return false;
     }
 
     tty.c_cflag &= ~PARENB; // No parity
@@ -106,38 +142,37 @@ void PicoInterface::configure_serial_port() {
     cfsetospeed(&tty, B115200);
 
     if (tcsetattr(serial_port, TCSANOW, &tty) != 0) {
-        RCLCPP_ERROR(this->get_logger(), "Failed to set serial port attributes: %s", strerror(errno));
-        serial_fd = -1;
+        RCLCPP_ERROR(
+            this->get_logger(),
+            "Failed to set serial port attributes: %s",
+            strerror(errno)
+        );
+        close(serial_port);
+        return false;
+    }
+
+    serial_fd = serial_port;
+    return true;
+}
+
+void PicoInterface::write_to_serial_port(const std::string& message) {
+    if (serial_fd < 0) {
+        RCLCPP_ERROR(this->get_logger(), "Serial port is not open");
         return;
     }
 
-
-
-}
-
-void PicoInterface::send_heartbeat_to_pico() {
-    std::string serial_message = "ping\n";
-    size_t length = serial_message.size();
-
-    ssize_t bytes_written = write(serial_fd, serial_message.c_str(), length);
+    int length = message.size();
+    ssize_t bytes_written = write(serial_fd, message.c_str(), length);
 
     if (bytes_written != length) {
-        RCLCPP_WARN(this->get_logger(), "Failed to ping Pico (wrote %zd/%d bytes)", bytes_written,
-                    length);
+        RCLCPP_ERROR(
+            this->get_logger(), 
+            "Failed to write to serial port (wrote %zd/%d bytes) messsage=%s",
+            bytes_written, 
+            length,
+            message.c_str()
+        );
     }
-}
-
-void PicoInterface::send_pwm_to_pico(int pin, int value) {
-    std::string serial_message = "Set " + std::to_string(pin) + " PWM " + std::to_string(value) + "\n";
-    size_t length = serial_message.size();
-
-
-
-};
-
-
-bool PicoInterface::get_health_status() {
-    return (std::chrono::steady_clock::now() - most_recent_heartbeat) > 1s;
 }
 
 #ifndef ENABLE_TESTING
