@@ -10,6 +10,7 @@ find_package(ament_cmake REQUIRED)
 find_package(ament_cmake_ros REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(std_msgs REQUIRED)
+find_package(custom_interfaces REQUIRED)
 # uncomment the following section in order to fill in
 # further dependencies manually.
 # find_package(<dependency> REQUIRED)
@@ -21,7 +22,7 @@ include_directories(
 
 # add executables
 add_executable(pico_interface src/pico_interface.cpp)
-ament_target_dependencies(pico_interface rclcpp std_msgs)
+ament_target_dependencies(pico_interface rclcpp std_msgs custom_interfaces)
 
 install(TARGETS
   pico_interface
