@@ -29,11 +29,11 @@ PicoInterface::PicoInterface(
     }
 
     thruster_heartbeat_subscription = this->create_subscription<std_msgs::msg::Empty>(
-        "thruster_heartbeat", 10,
+        "thruster_manager_heartbeat", 10,
         [this](const std_msgs::msg::Empty&) { thruster_heartbeat_callback(); });
 
     thruster_pwm_subscription = this->create_subscription<custom_interfaces::msg::PWM>(
-        "thruster_pwm", 10,
+        "pwm", 10,
         [this](const custom_interfaces::msg::PWM& pwm) { thruster_pwm_callback(pwm); });
 
     heartbeat_timer = this->create_wall_timer(500ms, [this]() { heartbeat_timer_callback(); });
