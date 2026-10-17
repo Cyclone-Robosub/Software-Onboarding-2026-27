@@ -46,6 +46,7 @@ PicoInterface::~PicoInterface() {
 }
 
 void PicoInterface::thruster_heartbeat_callback() {
+    first_heartbeat_received = true;
     most_recent_heartbeat = std::chrono::steady_clock::now();
 }
 
